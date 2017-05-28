@@ -1,0 +1,828 @@
+  [1m[35m (1.6ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY)[0m
+  [1m[35m (1.8ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" varchar NOT NULL PRIMARY KEY, "value" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL)[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.3ms)[0m  [1m[34mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+Migrating to CreatePictures (20170526181445)
+  [1m[35m (0.2ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE TABLE "pictures" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar, "url" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL)[0m
+  [1m[35mSQL (0.6ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20170526181445"]]
+  [1m[35m (4.4ms)[0m  [1m[36mcommit transaction[0m
+Migrating to CreateUsers (20170527180241)
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE TABLE "users" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL)[0m
+  [1m[35mSQL (0.3ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20170527180241"]]
+  [1m[35m (0.9ms)[0m  [1m[36mcommit transaction[0m
+Migrating to AddColumnsToUser (20170527182021)
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.8ms)[0m  [1m[35mALTER TABLE "users" ADD "first_name" varchar[0m
+  [1m[35m (0.2ms)[0m  [1m[35mALTER TABLE "users" ADD "last_name" varchar[0m
+  [1m[35m (0.2ms)[0m  [1m[35mALTER TABLE "users" ADD "email" varchar[0m
+  [1m[35m (0.3ms)[0m  [1m[35mALTER TABLE "users" ADD "password_digest" varchar[0m
+  [1m[35mSQL (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20170527182021"]]
+  [1m[35m (0.8ms)[0m  [1m[36mcommit transaction[0m
+Migrating to AddUserToPictures (20170527201132)
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.6ms)[0m  [1m[35mALTER TABLE "pictures" ADD "user_id" integer[0m
+  [1m[35m (0.1ms)[0m  [1m[34mselect sqlite_version(*)[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE  INDEX "index_pictures_on_user_id" ON "pictures" ("user_id")[0m
+  [1m[35mSQL (0.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20170527201132"]]
+  [1m[35m (0.8ms)[0m  [1m[36mcommit transaction[0m
+Migrating to AddAvatarToUsers (20170527201832)
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.4ms)[0m  [1m[35mALTER TABLE "users" ADD "avatar_file_name" varchar[0m
+  [1m[35m (0.2ms)[0m  [1m[35mALTER TABLE "users" ADD "avatar_content_type" varchar[0m
+  [1m[35m (0.2ms)[0m  [1m[35mALTER TABLE "users" ADD "avatar_file_size" integer[0m
+  [1m[35m (0.1ms)[0m  [1m[35mALTER TABLE "users" ADD "avatar_updated_at" datetime[0m
+  [1m[35mSQL (1.1ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20170527201832"]]
+  [1m[35m (1.5ms)[0m  [1m[36mcommit transaction[0m
+Migrating to RemoveUrlFromPictures (20170528203337)
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE TEMPORARY TABLE "apictures" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar, "url" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL, "user_id" integer)[0m
+  [1m[35m (0.1ms)[0m  [1m[34m            SELECT sql
+            FROM sqlite_master
+            WHERE name='index_pictures_on_user_id' AND type='index'
+            UNION ALL
+            SELECT sql
+            FROM sqlite_temp_master
+            WHERE name='index_pictures_on_user_id' AND type='index'
+[0m
+  [1m[35m (0.1ms)[0m  [1m[35mCREATE  INDEX "tindex_apictures_on_user_id" ON "apictures" ("user_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[32mINSERT INTO "apictures" ("id","title","url","created_at","updated_at","user_id")
+                     SELECT "id","title","url","created_at","updated_at","user_id" FROM "pictures"[0m
+  [1m[35m (0.5ms)[0m  [1m[35mDROP TABLE "pictures"[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE TABLE "pictures" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "url" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL, "user_id" integer)[0m
+  [1m[35m (0.1ms)[0m  [1m[34m            SELECT sql
+            FROM sqlite_master
+            WHERE name='tindex_apictures_on_user_id' AND type='index'
+            UNION ALL
+            SELECT sql
+            FROM sqlite_temp_master
+            WHERE name='tindex_apictures_on_user_id' AND type='index'
+[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE  INDEX "index_pictures_on_user_id" ON "pictures" ("user_id")[0m
+  [1m[35m (0.2ms)[0m  [1m[32mINSERT INTO "pictures" ("id","url","created_at","updated_at","user_id")
+                     SELECT "id","url","created_at","updated_at","user_id" FROM "apictures"[0m
+  [1m[35m (0.2ms)[0m  [1m[35mDROP TABLE "apictures"[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE TEMPORARY TABLE "apictures" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "url" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL, "user_id" integer)[0m
+  [1m[35m (0.2ms)[0m  [1m[34m            SELECT sql
+            FROM sqlite_master
+            WHERE name='index_pictures_on_user_id' AND type='index'
+            UNION ALL
+            SELECT sql
+            FROM sqlite_temp_master
+            WHERE name='index_pictures_on_user_id' AND type='index'
+[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE  INDEX "tindex_apictures_on_user_id" ON "apictures" ("user_id")[0m
+  [1m[35m (0.3ms)[0m  [1m[32mINSERT INTO "apictures" ("id","url","created_at","updated_at","user_id")
+                     SELECT "id","url","created_at","updated_at","user_id" FROM "pictures"[0m
+  [1m[35m (0.3ms)[0m  [1m[35mDROP TABLE "pictures"[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE TABLE "pictures" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL, "user_id" integer)[0m
+  [1m[35m (0.1ms)[0m  [1m[34m            SELECT sql
+            FROM sqlite_master
+            WHERE name='tindex_apictures_on_user_id' AND type='index'
+            UNION ALL
+            SELECT sql
+            FROM sqlite_temp_master
+            WHERE name='tindex_apictures_on_user_id' AND type='index'
+[0m
+  [1m[35m (0.2ms)[0m  [1m[35mCREATE  INDEX "index_pictures_on_user_id" ON "pictures" ("user_id")[0m
+  [1m[35m (0.4ms)[0m  [1m[32mINSERT INTO "pictures" ("id","created_at","updated_at","user_id")
+                     SELECT "id","created_at","updated_at","user_id" FROM "apictures"[0m
+  [1m[35m (0.2ms)[0m  [1m[35mDROP TABLE "apictures"[0m
+  [1m[35mSQL (0.3ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20170528203337"]]
+  [1m[35m (0.8ms)[0m  [1m[36mcommit transaction[0m
+Migrating to AddAttachmentToPictures (20170528203743)
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.9ms)[0m  [1m[35mALTER TABLE "pictures" ADD "image" attachment[0m
+  [1m[35mSQL (0.6ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20170528203743"]]
+  [1m[35m (1.2ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT  "ar_internal_metadata".* FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? LIMIT ?[0m  [["key", "environment"], ["LIMIT", 1]]
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35mSQL (0.7ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES (?, ?, ?, ?)[0m  [["key", "environment"], ["value", "development"], ["created_at", "2017-05-28 22:11:22.989921"], ["updated_at", "2017-05-28 22:11:22.989921"]]
+  [1m[35m (0.9ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+  [1m[35m (0.1ms)[0m  [1m[34m            SELECT sql
+            FROM sqlite_master
+            WHERE name='index_pictures_on_user_id' AND type='index'
+            UNION ALL
+            SELECT sql
+            FROM sqlite_temp_master
+            WHERE name='index_pictures_on_user_id' AND type='index'
+[0m
+Started GET "/" for 127.0.0.1 at 2017-05-28 18:11:47 -0400
+  [1m[36mActiveRecord::SchemaMigration Load (0.5ms)[0m  [1m[34mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+Processing by Rails::WelcomeController#index as HTML
+  Parameters: {"internal"=>true}
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/railties-5.0.3/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/railties-5.0.3/lib/rails/templates/rails/welcome/index.html.erb (6.4ms)
+Completed 200 OK in 45ms (Views: 18.7ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2017-05-28 18:11:51 -0400
+Processing by Rails::WelcomeController#index as HTML
+  Parameters: {"internal"=>true}
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/railties-5.0.3/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/railties-5.0.3/lib/rails/templates/rails/welcome/index.html.erb (4.8ms)
+Completed 200 OK in 17ms (Views: 10.7ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/pictures" for 127.0.0.1 at 2017-05-28 18:12:19 -0400
+Processing by PicturesController#index as HTML
+  Rendering pictures/index.html.erb within layouts/application
+  Rendered pictures/index.html.erb within layouts/application (6.3ms)
+Completed 200 OK in 1418ms (Views: 1402.5ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/login" for 127.0.0.1 at 2017-05-28 18:12:24 -0400
+Processing by SessionsController#new as HTML
+  Rendering sessions/new.html.erb within layouts/application
+  Rendered sessions/new.html.erb within layouts/application (1.5ms)
+Completed 200 OK in 65ms (Views: 61.0ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/login" for 127.0.0.1 at 2017-05-28 18:12:32 -0400
+Processing by SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"JMUHQU/3BhN2tM9NIgtgmbzVeEvU3jJi5LJi10d0KgjT/T1iHLv2qWp5ctCsHyJpp/oTM8itSGRRRnIbhPaZHg==", "email"=>"pkbanks@gmail.com", "password"=>"[FILTERED]", "commit"=>"Submit"}
+  [1m[36mUser Load (0.6ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."email" = ? LIMIT ?[0m  [["email", "pkbanks@gmail.com"], ["LIMIT", 1]]
+Redirected to http://localhost:3000/login
+Completed 302 Found in 24ms (ActiveRecord: 1.8ms)
+
+
+Started GET "/login" for 127.0.0.1 at 2017-05-28 18:12:32 -0400
+Processing by SessionsController#new as HTML
+  Rendering sessions/new.html.erb within layouts/application
+  Rendered sessions/new.html.erb within layouts/application (1.3ms)
+Completed 200 OK in 82ms (Views: 79.0ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/login" for 127.0.0.1 at 2017-05-28 18:12:40 -0400
+Processing by SessionsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"BISOgAWzMZRuSgFlnAp5D1yV2fWwrROZyco4MsUhxbPzvLSjVv/BLnKHvPgSHjv/R7qyjazeaZ98Pij+BqN2pQ==", "email"=>"pkbanks@gmail.com", "password"=>"[FILTERED]", "commit"=>"Submit"}
+  [1m[36mUser Load (2.2ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."email" = ? LIMIT ?[0m  [["email", "pkbanks@gmail.com"], ["LIMIT", 1]]
+Redirected to http://localhost:3000/login
+Completed 302 Found in 11ms (ActiveRecord: 2.2ms)
+
+
+Started GET "/login" for 127.0.0.1 at 2017-05-28 18:12:40 -0400
+Processing by SessionsController#new as HTML
+  Rendering sessions/new.html.erb within layouts/application
+  Rendered sessions/new.html.erb within layouts/application (1.5ms)
+Completed 200 OK in 57ms (Views: 52.8ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/login" for 127.0.0.1 at 2017-05-28 18:12:43 -0400
+Processing by SessionsController#new as HTML
+  Rendering sessions/new.html.erb within layouts/application
+  Rendered sessions/new.html.erb within layouts/application (1.1ms)
+Completed 200 OK in 41ms (Views: 38.5ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/signup" for 127.0.0.1 at 2017-05-28 18:12:56 -0400
+Processing by UsersController#new as HTML
+  Rendering users/new.html.erb within layouts/application
+  Rendered users/new.html.erb within layouts/application (17.6ms)
+Completed 200 OK in 70ms (Views: 66.5ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/users" for 127.0.0.1 at 2017-05-28 18:13:11 -0400
+Processing by UsersController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"0RvUYNvnRPapEwyUBKoqf993xC6Q/FmV9iij27+W060mI+5DiKu0TLXesQmKvmiPxFivVoyPI5ND3LMXfBRguw==", "user"=>{"first_name"=>"PK", "last_name"=>"Banks", "email"=>"pkbanks@gmail.com", "password"=>"[FILTERED]", "password_confirmation"=>"[FILTERED]"}, "commit"=>"Submit"}
+  [1m[35m (0.3ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35mSQL (9.4ms)[0m  [1m[32mINSERT INTO "users" ("created_at", "updated_at", "first_name", "last_name", "email", "password_digest") VALUES (?, ?, ?, ?, ?, ?)[0m  [["created_at", "2017-05-28 22:13:11.720497"], ["updated_at", "2017-05-28 22:13:11.720497"], ["first_name", "PK"], ["last_name", "Banks"], ["email", "pkbanks@gmail.com"], ["password_digest", "$2a$10$ZG1psKppBkDGSacqmgkufOiZpeE./uIJTpoLUG64JL1j0SEJSUPJq"]]
+  [1m[35m (0.8ms)[0m  [1m[36mcommit transaction[0m
+Redirected to http://localhost:3000/
+Completed 302 Found in 155ms (ActiveRecord: 12.1ms)
+
+
+Started GET "/" for 127.0.0.1 at 2017-05-28 18:13:11 -0400
+Processing by Rails::WelcomeController#index as HTML
+  Parameters: {"internal"=>true}
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/railties-5.0.3/lib/rails/templates/rails/welcome/index.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/railties-5.0.3/lib/rails/templates/rails/welcome/index.html.erb (5.8ms)
+Completed 200 OK in 18ms (Views: 10.4ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/pictures" for 127.0.0.1 at 2017-05-28 18:13:17 -0400
+Processing by PicturesController#index as HTML
+  Rendering pictures/index.html.erb within layouts/application
+  Rendered pictures/index.html.erb within layouts/application (2.4ms)
+  [1m[36mUser Load (0.4ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 85ms (Views: 78.6ms | ActiveRecord: 0.4ms)
+
+
+Started GET "/account" for 127.0.0.1 at 2017-05-28 18:13:19 -0400
+Processing by UsersController#edit as HTML
+  [1m[36mUser Load (0.9ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+  Rendering users/edit.html.erb within layouts/application
+  Rendered users/edit.html.erb within layouts/application (58.6ms)
+Completed 200 OK in 115ms (Views: 106.0ms | ActiveRecord: 0.9ms)
+
+
+Started GET "/pictures" for 127.0.0.1 at 2017-05-28 18:13:21 -0400
+Processing by PicturesController#index as HTML
+  Rendering pictures/index.html.erb within layouts/application
+  Rendered pictures/index.html.erb within layouts/application (0.7ms)
+  [1m[36mUser Load (0.3ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 62ms (Views: 58.1ms | ActiveRecord: 0.3ms)
+
+
+Started GET "/pictures" for 127.0.0.1 at 2017-05-28 18:13:22 -0400
+Processing by PicturesController#index as HTML
+  Rendering pictures/index.html.erb within layouts/application
+  Rendered pictures/index.html.erb within layouts/application (1.3ms)
+  [1m[36mUser Load (0.6ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 70ms (Views: 65.8ms | ActiveRecord: 0.6ms)
+
+
+Started GET "/pictures" for 127.0.0.1 at 2017-05-28 18:13:22 -0400
+Processing by PicturesController#index as HTML
+  Rendering pictures/index.html.erb within layouts/application
+  Rendered pictures/index.html.erb within layouts/application (0.9ms)
+  [1m[36mUser Load (0.2ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 59ms (Views: 54.7ms | ActiveRecord: 0.2ms)
+
+
+Started GET "/pictures" for 127.0.0.1 at 2017-05-28 18:15:54 -0400
+Processing by PicturesController#index as HTML
+  Rendering pictures/index.html.erb within layouts/application
+  Rendered pictures/index.html.erb within layouts/application (6.7ms)
+  [1m[36mUser Load (0.5ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 186ms (Views: 164.0ms | ActiveRecord: 0.5ms)
+
+
+  [1m[36mPicture Load (5.0ms)[0m  [1m[34mSELECT "pictures".* FROM "pictures"[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.7ms)[0m  [1m[34mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+Migrating to AddImageColumnsToPictures (20170528222030)
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35mSQL (0.6ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20170528222030"]]
+  [1m[35m (0.8ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT  "ar_internal_metadata".* FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? LIMIT ?[0m  [["key", "environment"], ["LIMIT", 1]]
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.0ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+  [1m[35m (0.1ms)[0m  [1m[34m            SELECT sql
+            FROM sqlite_master
+            WHERE name='index_pictures_on_user_id' AND type='index'
+            UNION ALL
+            SELECT sql
+            FROM sqlite_temp_master
+            WHERE name='index_pictures_on_user_id' AND type='index'
+[0m
+  [1m[36mPicture Load (5.0ms)[0m  [1m[34mSELECT "pictures".* FROM "pictures"[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+Migrating to CreatePics (20170528225338)
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE TABLE "pics" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar, "description" text, "image_file_name" varchar, "image_content_type" varchar, "image_file_size" integer, "image_updated_at" datetime, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL)[0m
+  [1m[35mSQL (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES (?)[0m  [["version", "20170528225338"]]
+  [1m[35m (1.4ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.2ms)[0m  [1m[34mSELECT  "ar_internal_metadata".* FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = ? LIMIT ?[0m  [["key", "environment"], ["LIMIT", 1]]
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[35m (0.0ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+  [1m[35m (0.1ms)[0m  [1m[34m            SELECT sql
+            FROM sqlite_master
+            WHERE name='index_pictures_on_user_id' AND type='index'
+            UNION ALL
+            SELECT sql
+            FROM sqlite_temp_master
+            WHERE name='index_pictures_on_user_id' AND type='index'
+[0m
+Started GET "/" for 127.0.0.1 at 2017-05-28 19:39:21 -0400
+  [1m[36mActiveRecord::SchemaMigration Load (1.0ms)[0m  [1m[34mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.6ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of templates [0 times] (0.0ms)
+  Rendered pics/index.html.erb within layouts/application (15.4ms)
+  [1m[36mUser Load (0.6ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 421ms (Views: 390.3ms | ActiveRecord: 3.4ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:39:25 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.5ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of templates [0 times] (0.0ms)
+  Rendered pics/index.html.erb within layouts/application (2.7ms)
+  [1m[36mUser Load (0.4ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 46ms (Views: 42.1ms | ActiveRecord: 1.0ms)
+
+
+Started GET "/pics/new" for 127.0.0.1 at 2017-05-28 19:39:29 -0400
+Processing by PicsController#new as HTML
+  Rendering pics/new.html.erb within layouts/application
+  Rendered pics/_form.html.erb (31.1ms)
+  Rendered pics/new.html.erb within layouts/application (33.8ms)
+  [1m[36mUser Load (0.2ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 79ms (Views: 63.6ms | ActiveRecord: 0.8ms)
+
+
+Started POST "/pics" for 127.0.0.1 at 2017-05-28 19:39:51 -0400
+Processing by PicsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"zykzdZxA6zUa6I7s7+uIRKjAIXeGZTg0h+pe6czHOpQ4EQlWzwwbjwYlM3Fh/8q0s+9KD5oWQjIyHk4lD0WJgg==", "pic"=>{"title"=>"Amazing", "description"=>"This is Amazing", "image"=>#<ActionDispatch::Http::UploadedFile:0x007feb49326cc0 @tempfile=#<Tempfile:/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/RackMultipart20170528-30031-1e7sqel.jpg>, @original_filename="cracking_code.jpg", @content_type="image/jpeg", @headers="Content-Disposition: form-data; name=\"pic[image]\"; filename=\"cracking_code.jpg\"\r\nContent-Type: image/jpeg\r\n">}, "commit"=>"Create Pic"}
+Command :: file -b --mime '/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/ec8320e67dfbb66742db3e83d5a4746f20170528-30031-eb65cm.jpg'
+  [1m[35m (0.7ms)[0m  [1m[36mbegin transaction[0m
+Command :: file -b --mime '/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/ec8320e67dfbb66742db3e83d5a4746f20170528-30031-1c5xa0x.jpg'
+  [1m[35mSQL (1.2ms)[0m  [1m[32mINSERT INTO "pics" ("title", "description", "image_file_name", "image_content_type", "image_file_size", "image_updated_at", "created_at", "updated_at") VALUES (?, ?, ?, ?, ?, ?, ?, ?)[0m  [["title", "Amazing"], ["description", "This is Amazing"], ["image_file_name", "cracking_code.jpg"], ["image_content_type", "image/jpeg"], ["image_file_size", 5783], ["image_updated_at", "2017-05-28 23:39:51.803856"], ["created_at", "2017-05-28 23:39:51.889103"], ["updated_at", "2017-05-28 23:39:51.889103"]]
+  [1m[35m (1.0ms)[0m  [1m[36mcommit transaction[0m
+Redirected to http://localhost:3000/pics
+Completed 302 Found in 122ms (ActiveRecord: 2.8ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:39:51 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.4ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [1 times] (0.5ms)
+  Rendered pics/index.html.erb within layouts/application (7.6ms)
+  [1m[36mUser Load (0.3ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 73ms (Views: 66.9ms | ActiveRecord: 0.6ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:43:41 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (1.6ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [1 times] (2.0ms)
+  Rendered pics/index.html.erb within layouts/application (20.3ms)
+  [1m[36mUser Load (0.4ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 110ms (Views: 96.5ms | ActiveRecord: 2.0ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:44:14 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.4ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [1 times] (5.3ms)
+  Rendered pics/index.html.erb within layouts/application (11.2ms)
+  [1m[36mUser Load (0.2ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 173ms (Views: 168.2ms | ActiveRecord: 0.5ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:44:40 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.4ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [1 times] (1.7ms)
+  Rendered pics/index.html.erb within layouts/application (6.9ms)
+  [1m[36mUser Load (0.3ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 46ms (Views: 42.5ms | ActiveRecord: 0.7ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:44:58 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.2ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [1 times] (2.6ms)
+  Rendered pics/index.html.erb within layouts/application (6.6ms)
+  [1m[36mUser Load (0.3ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 56ms (Views: 52.9ms | ActiveRecord: 0.5ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:45:02 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.4ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [1 times] (2.3ms)
+  Rendered pics/index.html.erb within layouts/application (7.3ms)
+  [1m[36mUser Load (0.5ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 62ms (Views: 56.9ms | ActiveRecord: 0.9ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:45:10 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.2ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [1 times] (1.3ms)
+  Rendered pics/index.html.erb within layouts/application (4.8ms)
+  [1m[36mUser Load (0.3ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 49ms (Views: 45.4ms | ActiveRecord: 0.5ms)
+
+
+Started GET "/pics/new" for 127.0.0.1 at 2017-05-28 19:45:13 -0400
+Processing by PicsController#new as HTML
+  Rendering pics/new.html.erb within layouts/application
+  Rendered pics/_form.html.erb (6.1ms)
+  Rendered pics/new.html.erb within layouts/application (9.3ms)
+  [1m[36mUser Load (0.3ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 71ms (Views: 57.9ms | ActiveRecord: 0.3ms)
+
+
+Started POST "/pics" for 127.0.0.1 at 2017-05-28 19:46:34 -0400
+Processing by PicsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Yc6HfVt3ZCDy6gA0SP3XtsVVFmtX8pKwX1Bfsaf1vHCW9r1eCDuUmu4nvanG6ZVG3np9E0uB6LbqpE99ZHcPZg==", "pic"=>{"title"=>"OMG", "description"=>"kitty kitty kitty", "image"=>#<ActionDispatch::Http::UploadedFile:0x007feb4832ac40 @tempfile=#<Tempfile:/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/RackMultipart20170528-30031-8p98l7.jpeg>, @original_filename="cat2.jpeg", @content_type="image/jpeg", @headers="Content-Disposition: form-data; name=\"pic[image]\"; filename=\"cat2.jpeg\"\r\nContent-Type: image/jpeg\r\n">}, "commit"=>"Create Pic"}
+Command :: file -b --mime '/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/9428beec5dd65d1b54985661ca3eefca20170528-30031-1atlf4a.jpeg'
+  [1m[35m (1.0ms)[0m  [1m[36mbegin transaction[0m
+Command :: file -b --mime '/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/9428beec5dd65d1b54985661ca3eefca20170528-30031-1rdj4ab.jpeg'
+  [1m[35mSQL (1.4ms)[0m  [1m[32mINSERT INTO "pics" ("title", "description", "image_file_name", "image_content_type", "image_file_size", "image_updated_at", "created_at", "updated_at") VALUES (?, ?, ?, ?, ?, ?, ?, ?)[0m  [["title", "OMG"], ["description", "kitty kitty kitty"], ["image_file_name", "cat2.jpeg"], ["image_content_type", "image/jpeg"], ["image_file_size", 9818], ["image_updated_at", "2017-05-28 23:46:34.855547"], ["created_at", "2017-05-28 23:46:34.921846"], ["updated_at", "2017-05-28 23:46:34.921846"]]
+  [1m[35m (4.3ms)[0m  [1m[36mcommit transaction[0m
+Redirected to http://localhost:3000/pics
+Completed 302 Found in 142ms (ActiveRecord: 6.7ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:46:34 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.7ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [2 times] (3.3ms)
+  Rendered pics/index.html.erb within layouts/application (11.5ms)
+  [1m[36mUser Load (0.2ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 111ms (Views: 104.6ms | ActiveRecord: 1.0ms)
+
+
+Started GET "/pics/new" for 127.0.0.1 at 2017-05-28 19:46:37 -0400
+Processing by PicsController#new as HTML
+  Rendering pics/new.html.erb within layouts/application
+  Rendered pics/_form.html.erb (7.9ms)
+  Rendered pics/new.html.erb within layouts/application (12.9ms)
+  [1m[36mUser Load (0.3ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 76ms (Views: 70.4ms | ActiveRecord: 0.3ms)
+
+
+Started POST "/pics" for 127.0.0.1 at 2017-05-28 19:46:53 -0400
+Processing by PicsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"/NWii/jTpxKWynKewwqSQcKuWZlHmJKbKtNgz8JwzZwL7Zioq59XqIoHzwNNHtCx2YEy4Vvr6J2fJ3ADAfJ+ig==", "pic"=>{"title"=>"fluffy fluffy fluffy", "description"=>"", "image"=>#<ActionDispatch::Http::UploadedFile:0x007feb468a43d0 @tempfile=#<Tempfile:/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/RackMultipart20170528-30031-4eajdn.jpg>, @original_filename="cat3.jpg", @content_type="image/jpeg", @headers="Content-Disposition: form-data; name=\"pic[image]\"; filename=\"cat3.jpg\"\r\nContent-Type: image/jpeg\r\n">}, "commit"=>"Create Pic"}
+Command :: file -b --mime '/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/9b9423f286ce21b709cf1f69dc48c4a420170528-30031-6gydat.jpg'
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+Command :: file -b --mime '/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/9b9423f286ce21b709cf1f69dc48c4a420170528-30031-6o8paa.jpg'
+  [1m[35mSQL (0.7ms)[0m  [1m[32mINSERT INTO "pics" ("title", "description", "image_file_name", "image_content_type", "image_file_size", "image_updated_at", "created_at", "updated_at") VALUES (?, ?, ?, ?, ?, ?, ?, ?)[0m  [["title", "fluffy fluffy fluffy"], ["description", ""], ["image_file_name", "cat3.jpg"], ["image_content_type", "image/jpeg"], ["image_file_size", 63220], ["image_updated_at", "2017-05-28 23:46:53.154880"], ["created_at", "2017-05-28 23:46:53.195176"], ["updated_at", "2017-05-28 23:46:53.195176"]]
+  [1m[35m (1.0ms)[0m  [1m[36mcommit transaction[0m
+Redirected to http://localhost:3000/pics
+Completed 302 Found in 84ms (ActiveRecord: 1.9ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:46:53 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.2ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [3 times] (2.3ms)
+  Rendered pics/index.html.erb within layouts/application (6.1ms)
+  [1m[36mUser Load (0.2ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 45ms (Views: 42.4ms | ActiveRecord: 0.4ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:47:08 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.2ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [3 times] (0.9ms)
+  Rendered pics/index.html.erb within layouts/application (4.1ms)
+Completed 500 Internal Server Error in 14ms (ActiveRecord: 0.2ms)
+
+
+  
+SyntaxError (/Users/developer/Desktop/wyncode/projects/CapSoul/CapSoul/app/views/pics/_pic.html.erb:2: syntax error, unexpected tIDENTIFIER, expecting ')'
+ image_tag pic.image.url 250px);@output_buffer.append=( link
+                              ^):
+  
+app/views/pics/_pic.html.erb:2: syntax error, unexpected tIDENTIFIER, expecting ')'
+app/views/pics/index.html.erb:5:in `_app_views_pics_index_html_erb___2003639098054534885_70324254166040'
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/diagnostics.html.erb within rescues/layout
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_source.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_source.html.erb (9.3ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (3.8ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (1.5ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/diagnostics.html.erb within rescues/layout (93.1ms)
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:47:26 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (1.2ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [3 times] (3.6ms)
+  Rendered pics/index.html.erb within layouts/application (25.9ms)
+Completed 500 Internal Server Error in 68ms (ActiveRecord: 1.2ms)
+
+
+  
+SyntaxError (/Users/developer/Desktop/wyncode/projects/CapSoul/CapSoul/app/views/pics/_pic.html.erb:2: syntax error, unexpected tIDENTIFIER, expecting ')'
+_tag pic.image.url size: 250px);@output_buffer.append=( link
+                              ^):
+  
+app/views/pics/_pic.html.erb:2: syntax error, unexpected tIDENTIFIER, expecting ')'
+app/views/pics/index.html.erb:5:in `_app_views_pics_index_html_erb___2003639098054534885_70324254736960'
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/diagnostics.html.erb within rescues/layout
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_source.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_source.html.erb (14.2ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (5.0ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (2.3ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/diagnostics.html.erb within rescues/layout (113.5ms)
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:47:40 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.3ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [3 times] (7.0ms)
+  Rendered pics/index.html.erb within layouts/application (10.7ms)
+  [1m[36mUser Load (0.3ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 87ms (Views: 81.9ms | ActiveRecord: 0.6ms)
+
+
+Started GET "/system/pics/images/000/000/003/%7B:size=%3E250%7D/cat3.jpg?1496015213" for 127.0.0.1 at 2017-05-28 19:47:40 -0400
+Started GET "/system/pics/images/000/000/002/%7B:size=%3E250%7D/cat2.jpeg?1496015194" for 127.0.0.1 at 2017-05-28 19:47:40 -0400
+Started GET "/system/pics/images/000/000/001/%7B:size=%3E250%7D/cracking_code.jpg?1496014791" for 127.0.0.1 at 2017-05-28 19:47:40 -0400
+  
+  
+  
+ActionController::RoutingError (No route matches [GET] "/system/pics/images/000/000/003/%7B:size=%3E250%7D/cat3.jpg"):
+ActionController::RoutingError (No route matches [GET] "/system/pics/images/000/000/002/%7B:size=%3E250%7D/cat2.jpeg"):
+ActionController::RoutingError (No route matches [GET] "/system/pics/images/000/000/001/%7B:size=%3E250%7D/cracking_code.jpg"):
+  
+  
+  
+actionpack (5.0.3) lib/action_dispatch/middleware/debug_exceptions.rb:53:in `call'
+web-console (3.5.1) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.5.1) lib/web_console/middleware.rb:28:in `block in call'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `catch'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/show_exceptions.rb:31:in `call'
+railties (5.0.3) lib/rails/rack/logger.rb:36:in `call_app'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `block in call'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `block in tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:26:in `tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `tagged'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `call'
+sprockets-rails (3.2.0) lib/sprockets/rails/quiet_assets.rb:13:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/request_id.rb:24:in `call'
+rack (2.0.3) lib/rack/method_override.rb:22:in `call'
+rack (2.0.3) lib/rack/runtime.rb:22:in `call'
+activesupport (5.0.3) lib/active_support/cache/strategy/local_cache_middleware.rb:28:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/executor.rb:12:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/static.rb:136:in `call'
+rack (2.0.3) lib/rack/sendfile.rb:111:in `call'
+railties (5.0.3) lib/rails/engine.rb:522:in `call'
+puma (3.8.2) lib/puma/configuration.rb:224:in `call'
+puma (3.8.2) lib/puma/server.rb:600:in `handle_request'
+puma (3.8.2) lib/puma/server.rb:435:in `process_client'
+puma (3.8.2) lib/puma/server.rb:299:in `block in run'
+puma (3.8.2) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+actionpack (5.0.3) lib/action_dispatch/middleware/debug_exceptions.rb:53:in `call'
+web-console (3.5.1) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.5.1) lib/web_console/middleware.rb:28:in `block in call'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `catch'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/show_exceptions.rb:31:in `call'
+railties (5.0.3) lib/rails/rack/logger.rb:36:in `call_app'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `block in call'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `block in tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:26:in `tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `tagged'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `call'
+sprockets-rails (3.2.0) lib/sprockets/rails/quiet_assets.rb:13:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/request_id.rb:24:in `call'
+rack (2.0.3) lib/rack/method_override.rb:22:in `call'
+rack (2.0.3) lib/rack/runtime.rb:22:in `call'
+activesupport (5.0.3) lib/active_support/cache/strategy/local_cache_middleware.rb:28:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/executor.rb:12:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/static.rb:136:in `call'
+rack (2.0.3) lib/rack/sendfile.rb:111:in `call'
+railties (5.0.3) lib/rails/engine.rb:522:in `call'
+puma (3.8.2) lib/puma/configuration.rb:224:in `call'
+puma (3.8.2) lib/puma/server.rb:600:in `handle_request'
+puma (3.8.2) lib/puma/server.rb:435:in `process_client'
+puma (3.8.2) lib/puma/server.rb:299:in `block in run'
+puma (3.8.2) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+actionpack (5.0.3) lib/action_dispatch/middleware/debug_exceptions.rb:53:in `call'
+web-console (3.5.1) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.5.1) lib/web_console/middleware.rb:28:in `block in call'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `catch'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/show_exceptions.rb:31:in `call'
+railties (5.0.3) lib/rails/rack/logger.rb:36:in `call_app'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `block in call'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `block in tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:26:in `tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `tagged'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `call'
+sprockets-rails (3.2.0) lib/sprockets/rails/quiet_assets.rb:13:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/request_id.rb:24:in `call'
+rack (2.0.3) lib/rack/method_override.rb:22:in `call'
+rack (2.0.3) lib/rack/runtime.rb:22:in `call'
+activesupport (5.0.3) lib/active_support/cache/strategy/local_cache_middleware.rb:28:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/executor.rb:12:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/static.rb:136:in `call'
+rack (2.0.3) lib/rack/sendfile.rb:111:in `call'
+railties (5.0.3) lib/rails/engine.rb:522:in `call'
+puma (3.8.2) lib/puma/configuration.rb:224:in `call'
+puma (3.8.2) lib/puma/server.rb:600:in `handle_request'
+puma (3.8.2) lib/puma/server.rb:435:in `process_client'
+puma (3.8.2) lib/puma/server.rb:299:in `block in run'
+puma (3.8.2) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (1.3ms)
+  Rendered collection of /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_route.html.erb [35 times] (25.3ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (1.4ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_table.html.erb (24.5ms)
+  Rendered collection of /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_route.html.erb [35 times] (10.1ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_table.html.erb (1.3ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (2.4ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout (347.8ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (1.4ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (1.2ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout (239.7ms)
+  Rendered collection of /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_route.html.erb [35 times] (19.9ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_table.html.erb (1.2ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (2.2ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout (348.8ms)
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:48:11 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.2ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [3 times] (2.7ms)
+  Rendered pics/index.html.erb within layouts/application (6.5ms)
+  [1m[36mUser Load (0.2ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 69ms (Views: 65.6ms | ActiveRecord: 0.4ms)
+
+
+Started GET "/system/pics/images/000/000/002/%7B:size=%3E%22250%22%7D/cat2.jpeg?1496015194" for 127.0.0.1 at 2017-05-28 19:48:11 -0400
+  
+ActionController::RoutingError (No route matches [GET] "/system/pics/images/000/000/002/%7B:size=%3E%22250%22%7D/cat2.jpeg"):
+  
+actionpack (5.0.3) lib/action_dispatch/middleware/debug_exceptions.rb:53:in `call'
+web-console (3.5.1) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.5.1) lib/web_console/middleware.rb:28:in `block in call'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `catch'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/show_exceptions.rb:31:in `call'
+railties (5.0.3) lib/rails/rack/logger.rb:36:in `call_app'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `block in call'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `block in tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:26:in `tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `tagged'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `call'
+sprockets-rails (3.2.0) lib/sprockets/rails/quiet_assets.rb:13:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/request_id.rb:24:in `call'
+rack (2.0.3) lib/rack/method_override.rb:22:in `call'
+rack (2.0.3) lib/rack/runtime.rb:22:in `call'
+activesupport (5.0.3) lib/active_support/cache/strategy/local_cache_middleware.rb:28:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/executor.rb:12:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/static.rb:136:in `call'
+rack (2.0.3) lib/rack/sendfile.rb:111:in `call'
+railties (5.0.3) lib/rails/engine.rb:522:in `call'
+puma (3.8.2) lib/puma/configuration.rb:224:in `call'
+puma (3.8.2) lib/puma/server.rb:600:in `handle_request'
+puma (3.8.2) lib/puma/server.rb:435:in `process_client'
+puma (3.8.2) lib/puma/server.rb:299:in `block in run'
+puma (3.8.2) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+Started GET "/system/pics/images/000/000/001/%7B:size=%3E%22250%22%7D/cracking_code.jpg?1496014791" for 127.0.0.1 at 2017-05-28 19:48:11 -0400
+  
+ActionController::RoutingError (No route matches [GET] "/system/pics/images/000/000/001/%7B:size=%3E%22250%22%7D/cracking_code.jpg"):
+  
+actionpack (5.0.3) lib/action_dispatch/middleware/debug_exceptions.rb:53:in `call'
+web-console (3.5.1) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.5.1) lib/web_console/middleware.rb:28:in `block in call'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `catch'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/show_exceptions.rb:31:in `call'
+railties (5.0.3) lib/rails/rack/logger.rb:36:in `call_app'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `block in call'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `block in tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:26:in `tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `tagged'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `call'
+sprockets-rails (3.2.0) lib/sprockets/rails/quiet_assets.rb:13:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/request_id.rb:24:in `call'
+rack (2.0.3) lib/rack/method_override.rb:22:in `call'
+rack (2.0.3) lib/rack/runtime.rb:22:in `call'
+activesupport (5.0.3) lib/active_support/cache/strategy/local_cache_middleware.rb:28:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/executor.rb:12:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/static.rb:136:in `call'
+rack (2.0.3) lib/rack/sendfile.rb:111:in `call'
+railties (5.0.3) lib/rails/engine.rb:522:in `call'
+puma (3.8.2) lib/puma/configuration.rb:224:in `call'
+puma (3.8.2) lib/puma/server.rb:600:in `handle_request'
+puma (3.8.2) lib/puma/server.rb:435:in `process_client'
+puma (3.8.2) lib/puma/server.rb:299:in `block in run'
+puma (3.8.2) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+Started GET "/system/pics/images/000/000/003/%7B:size=%3E%22250%22%7D/cat3.jpg?1496015213" for 127.0.0.1 at 2017-05-28 19:48:11 -0400
+  
+ActionController::RoutingError (No route matches [GET] "/system/pics/images/000/000/003/%7B:size=%3E%22250%22%7D/cat3.jpg"):
+  
+actionpack (5.0.3) lib/action_dispatch/middleware/debug_exceptions.rb:53:in `call'
+web-console (3.5.1) lib/web_console/middleware.rb:135:in `call_app'
+web-console (3.5.1) lib/web_console/middleware.rb:28:in `block in call'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `catch'
+web-console (3.5.1) lib/web_console/middleware.rb:18:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/show_exceptions.rb:31:in `call'
+railties (5.0.3) lib/rails/rack/logger.rb:36:in `call_app'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `block in call'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `block in tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:26:in `tagged'
+activesupport (5.0.3) lib/active_support/tagged_logging.rb:69:in `tagged'
+railties (5.0.3) lib/rails/rack/logger.rb:24:in `call'
+sprockets-rails (3.2.0) lib/sprockets/rails/quiet_assets.rb:13:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/request_id.rb:24:in `call'
+rack (2.0.3) lib/rack/method_override.rb:22:in `call'
+rack (2.0.3) lib/rack/runtime.rb:22:in `call'
+activesupport (5.0.3) lib/active_support/cache/strategy/local_cache_middleware.rb:28:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/executor.rb:12:in `call'
+actionpack (5.0.3) lib/action_dispatch/middleware/static.rb:136:in `call'
+rack (2.0.3) lib/rack/sendfile.rb:111:in `call'
+railties (5.0.3) lib/rails/engine.rb:522:in `call'
+puma (3.8.2) lib/puma/configuration.rb:224:in `call'
+puma (3.8.2) lib/puma/server.rb:600:in `handle_request'
+puma (3.8.2) lib/puma/server.rb:435:in `process_client'
+puma (3.8.2) lib/puma/server.rb:299:in `block in run'
+puma (3.8.2) lib/puma/thread_pool.rb:120:in `block in spawn_thread'
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (1.8ms)
+  Rendered collection of /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_route.html.erb [35 times] (15.9ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_table.html.erb (1.4ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (1.5ms)
+  Rendered collection of /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_route.html.erb [35 times] (17.9ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_table.html.erb (1.6ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (1.8ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (1.7ms)
+  Rendered collection of /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_route.html.erb [35 times] (21.6ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (1.4ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout (416.8ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout (264.2ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/routes/_table.html.erb (1.4ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (1.7ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout (321.9ms)
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:48:50 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (1.3ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [3 times] (3.1ms)
+  Rendered pics/index.html.erb within layouts/application (9.3ms)
+Completed 500 Internal Server Error in 24ms (ActiveRecord: 1.3ms)
+
+
+  
+SyntaxError (/Users/developer/Desktop/wyncode/projects/CapSoul/CapSoul/app/views/pics/_pic.html.erb:4: syntax error, unexpected keyword_ensure, expecting ')'
+          ensure
+                ^
+/Users/developer/Desktop/wyncode/projects/CapSoul/CapSoul/app/views/pics/_pic.html.erb:6: syntax error, unexpected keyword_end, expecting ')'
+          end
+             ^):
+  
+app/views/pics/_pic.html.erb:4: syntax error, unexpected keyword_ensure, expecting ')'
+app/views/pics/_pic.html.erb:6: syntax error, unexpected keyword_end, expecting ')'
+app/views/pics/index.html.erb:5:in `_app_views_pics_index_html_erb___2003639098054534885_70324253869300'
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/diagnostics.html.erb within rescues/layout
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_source.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_source.html.erb (15.1ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (6.1ms)
+  Rendering /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (2.1ms)
+  Rendered /Users/developer/.rvm/gems/ruby-2.4.1/gems/actionpack-5.0.3/lib/action_dispatch/middleware/templates/rescues/diagnostics.html.erb within rescues/layout (109.1ms)
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:49:08 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.5ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [3 times] (2.9ms)
+  Rendered pics/index.html.erb within layouts/application (7.5ms)
+  [1m[36mUser Load (0.5ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 77ms (Views: 72.6ms | ActiveRecord: 1.0ms)
+
+
+Started GET "/pics/new" for 127.0.0.1 at 2017-05-28 19:49:13 -0400
+Processing by PicsController#new as HTML
+  Rendering pics/new.html.erb within layouts/application
+  Rendered pics/_form.html.erb (4.8ms)
+  Rendered pics/new.html.erb within layouts/application (7.9ms)
+  [1m[36mUser Load (0.4ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 57ms (Views: 44.6ms | ActiveRecord: 0.4ms)
+
+
+Started POST "/pics" for 127.0.0.1 at 2017-05-28 19:49:25 -0400
+Processing by PicsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"AOQqeIOQUwzqWl14gwDyJs65CI8E4tK6frp5GgIl6TH33BBb0NyjtvaX4OUNFLDW1ZZj9xiRqLzLTmnWwadaJw==", "pic"=>{"title"=>"meow", "description"=>"", "image"=>#<ActionDispatch::Http::UploadedFile:0x007feb44c89e20 @tempfile=#<Tempfile:/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/RackMultipart20170528-30031-lrmjjq.jpeg>, @original_filename="cat1.jpeg", @content_type="image/jpeg", @headers="Content-Disposition: form-data; name=\"pic[image]\"; filename=\"cat1.jpeg\"\r\nContent-Type: image/jpeg\r\n">}, "commit"=>"Create Pic"}
+Command :: file -b --mime '/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/a980d10665f268b0ec6c13ebea43034f20170528-30031-1yp7wqd.jpeg'
+  [1m[35m (0.1ms)[0m  [1m[36mbegin transaction[0m
+Command :: file -b --mime '/var/folders/sl/ds7fp6rn2xb6pz1jxw52cqpm0000gq/T/a980d10665f268b0ec6c13ebea43034f20170528-30031-1atm896.jpeg'
+  [1m[35mSQL (0.6ms)[0m  [1m[32mINSERT INTO "pics" ("title", "description", "image_file_name", "image_content_type", "image_file_size", "image_updated_at", "created_at", "updated_at") VALUES (?, ?, ?, ?, ?, ?, ?, ?)[0m  [["title", "meow"], ["description", ""], ["image_file_name", "cat1.jpeg"], ["image_content_type", "image/jpeg"], ["image_file_size", 8103], ["image_updated_at", "2017-05-28 23:49:25.778392"], ["created_at", "2017-05-28 23:49:25.854270"], ["updated_at", "2017-05-28 23:49:25.854270"]]
+  [1m[35m (0.7ms)[0m  [1m[36mcommit transaction[0m
+Redirected to http://localhost:3000/pics
+Completed 302 Found in 101ms (ActiveRecord: 1.5ms)
+
+
+Started GET "/pics" for 127.0.0.1 at 2017-05-28 19:49:25 -0400
+Processing by PicsController#index as HTML
+  Rendering pics/index.html.erb within layouts/application
+  [1m[36mPic Load (0.3ms)[0m  [1m[34mSELECT "pics".* FROM "pics" ORDER BY created_at DESC[0m
+  Rendered collection of pics/_pic.html.erb [4 times] (3.1ms)
+  Rendered pics/index.html.erb within layouts/application (7.9ms)
+  [1m[36mUser Load (0.3ms)[0m  [1m[34mSELECT  "users".* FROM "users" WHERE "users"."id" = ? LIMIT ?[0m  [["id", 1], ["LIMIT", 1]]
+Completed 200 OK in 66ms (Views: 60.0ms | ActiveRecord: 0.6ms)
+
+
+  [1m[36mPic Load (4.1ms)[0m  [1m[34mSELECT "pics".* FROM "pics"[0m

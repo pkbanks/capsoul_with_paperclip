@@ -1,0 +1,27 @@
+/*
+  Place all the styles related to the matching controller here.
+  They will automatically be included in application.css.
+*/
+
+h1{
+    color:blue;
+}
+
+#hourglass{
+  display: flex;
+  justify-content: center;
+}
+
+#footer{
+    position: absolute;
+    bottom:0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+@media only screen and (min-width: 768px){
+    #events{
+        display: flex;
+    }
+}

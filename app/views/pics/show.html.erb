@@ -1,0 +1,5 @@
+<h1><%= @pic.title %> by <%= @pic.author %></h1>
+ 
+<%= image_tag(@pic.image.url) if @pic.image.exists? %>
+ 
+<p><%= @pic.description %></p>
